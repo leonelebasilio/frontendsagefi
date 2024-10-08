@@ -1,6 +1,4 @@
-// Teste github 5345
-
-mport React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { X, Upload } from 'lucide-react'
 import { Button } from "@/components/ui/button"
