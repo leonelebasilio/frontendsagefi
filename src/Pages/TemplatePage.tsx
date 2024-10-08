@@ -7,6 +7,9 @@ import Bodysys from '@/components/uisys/Bodysys'
 import BodysysTransactionsPage from '../components/Pages/BodysysTransactionsPage'
 import BodyImportData from '../components/Pages/BodyImportData'
 import BodyDashboard from '../components/Pages/BodyDashboard'
+import BuscarPage from '../components/Pages/BodyBuscarAI'
+import BodyCapturaFoto from '@/components/Pages/BodyCapturaFoto'
+
 
 // Define props interface for TemplatePage component
 interface TemplatePageProps {
@@ -22,11 +25,32 @@ export default function TemplatePage({ children }: TemplatePageProps) {
       </div>
     
       {/* Main content */}
-   
+      <Bodysys>
+        {children}
+        <BodysysTransactionsPage />
+      </Bodysys>
+
+      <Bodysys>
+        {children}
+        <BodyImportData />
+      </Bodysys>
+
       <Bodysys>
         {children}
         <BodyDashboard />
       </Bodysys>
+
+      <Bodysys>
+        {children}
+        <BuscarPage />
+      </Bodysys>
+
+      <Bodysys>
+        {children}
+        <BodyCapturaFoto />
+      </Bodysys>
+
+
 
       {/* Footer */}
       <Footersys />

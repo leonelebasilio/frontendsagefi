@@ -7,13 +7,16 @@ import Bodysys from '@/components/uisys/Bodysys'
 import BodysysTransactionsPage from '../components/Pages/BodysysTransactionsPage'
 import BodyImportData from '../components/Pages/BodyImportData'
 import BodyDashboard from '../components/Pages/BodyDashboard'
+import BuscarPage from '../components/Pages/BodyBuscarAI'
+import BodyCapturaFoto from '@/components/Pages/BodyCapturaFoto'
 
-// Define props interface for TemplatePage component
-interface TemplatePageProps {
+
+// Define props interface for GoalsPage component
+interface GoalsPageProps {
   children: React.ReactNode;
 }
 
-export default function TemplatePage({ children }: TemplatePageProps) {
+export default function GoalsPage({ children }: GoalsPageProps) {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 font-sans">
       {/* Header with integrated menu - now sticky */}
@@ -22,11 +25,13 @@ export default function TemplatePage({ children }: TemplatePageProps) {
       </div>
     
       {/* Main content */}
-   
-      <Bodysys>
+      {/* <Bodysys>
         {children}
-        <BodyDashboard />
-      </Bodysys>
+        <BodysysTransactionsPage />
+      </Bodysys> */}
+
+
+
 
       {/* Footer */}
       <Footersys />

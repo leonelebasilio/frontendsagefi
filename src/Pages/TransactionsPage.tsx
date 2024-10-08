@@ -4,9 +4,7 @@ import React from 'react'
 import Headersys from '@/components/uisys/Headersys'
 import Footersys from '@/components/uisys/Footersys'
 import Bodysys from '@/components/uisys/Bodysys'
-import BodysysTransactionsPage from '../components/Pages/BodysysTransactionsPage'
-import BodyImportData from '../components/Pages/BodyImportData'
-import BodyDashboard from '../components/Pages/BodyDashboard'
+import BodysysTransactionsPage from '@/components/Pages/BodysysTransactionsPage'
 
 // Define props interface for TemplatePage component
 interface TemplatePageProps {
@@ -22,10 +20,9 @@ export default function TemplatePage({ children }: TemplatePageProps) {
       </div>
     
       {/* Main content */}
-   
       <Bodysys>
         {children}
-        <BodyDashboard />
+        <BodysysTransactionsPage />
       </Bodysys>
 
       {/* Footer */}

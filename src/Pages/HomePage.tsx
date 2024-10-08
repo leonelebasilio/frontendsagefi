@@ -1,7 +1,14 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { Button } from "/SaudeFinanceira/frontendsagefi/src/components/ui/button"
-import { PieChart, ShoppingCart, HelpCircle, DollarSign, Brain, Wallet, BarChart } from "lucide-react"
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Brain, HelpCircle, DollarSign, Check } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 const translations = {
   pt: {
@@ -22,16 +29,47 @@ const translations = {
     purchaseOptimization: "Otimização de Compras",
     purchaseOptimizationDesc: "Obtenha insights sobre seus hábitos de consumo e tendências de compras.",
     faqTitle: "Perguntas Frequentes",
+    faq1: "Como protegemos seus dados financeiros?",
+    faqAnswer1: "Utilizamos criptografia de nível bancário e seguimos as melhores práticas de segurança para proteger seus dados.",
+    faq2: "Posso conectar múltiplas contas bancárias?",
+    faqAnswer2: "Sim, você pode conectar e gerenciar várias contas bancárias em uma única interface.",
+    faq3: "Como a IA melhora minha gestão financeira?",
+    faqAnswer3: "Nossa IA analisa seus padrões de gastos e fornece recomendações personalizadas para melhorar sua saúde financeira.",
+    faq4: "Vocês oferecem planejamento para aposentadoria?",
+    faqAnswer4: "Sim, nossos planos incluem ferramentas de planejamento para aposentadoria com projeções e recomendações personalizadas.",
+    faq5: "Posso cancelar minha assinatura a qualquer momento?",
+    faqAnswer5: "Absolutamente. Você pode cancelar sua assinatura a qualquer momento sem taxas adicionais.",
     pricingTitle: "Preços e Funcionalidades",
     free: "Gratuito",
     individual: "Individual",
     company: "Empresa",
     month: "/mês",
     choosePlan: "Escolher Plano",
+    freeFeatures: [
+      "Rastreamento de despesas básico",
+      "Visão geral do orçamento",
+      "Alertas de gastos",
+      "Conexão com 1 conta bancária",
+      "Relatórios mensais"
+    ],
+    individualFeatures: [
+      "Todas as funcionalidades do plano Gratuito",
+      "Conexão com múltiplas contas",
+      "Categorização automática de transações",
+      "Metas financeiras personalizadas",
+      "Análise de investimentos"
+    ],
+    companyFeatures: [
+      "Todas as funcionalidades do plano Individual",
+      "Gestão de despesas de equipe",
+      "Relatórios financeiros avançados",
+      "Integração com sistemas de contabilidade",
+      "Suporte prioritário 24/7"
+    ],
     privacyPolicy: "Política de Privacidade",
     termsOfService: "Termos de Serviço",
     aboutUs: "Quem Somos",
-    copyright: "© 2023 SageFI. Todos os direitos reservados.",
+    copyright: "© 2024 Todos os direitos reservados.",
   },
   en: {
     home: "Home",
@@ -49,18 +87,49 @@ const translations = {
     smartBudget: "Smart Budget",
     smartBudgetDesc: "Let AI help you create and maintain an optimal budget.",
     purchaseOptimization: "Purchase Optimization",
-    purchaseOptimizationDesc: "Gain insights into your consumption habits and shopping trends.",
+    purchaseOptimizationDesc: "Gain insights into your spending habits and purchase trends.",
     faqTitle: "Frequently Asked Questions",
-    pricingTitle: "Pricing & Features",
+    faq1: "How do we protect your financial data?",
+    faqAnswer1: "We use bank-level encryption and follow best security practices to protect your data.",
+    faq2: "Can I connect multiple bank accounts?",
+    faqAnswer2: "Yes, you can connect and manage multiple bank accounts in a single interface.",
+    faq3: "How does AI improve my financial management?",
+    faqAnswer3: "Our AI analyzes your spending patterns and provides personalized recommendations to improve your financial health.",
+    faq4: "Do you offer retirement planning?",
+    faqAnswer4: "Yes, our plans include retirement planning tools with personalized projections and recommendations.",
+    faq5: "Can I cancel my subscription at any time?",
+    faqAnswer5: "Absolutely. You can cancel your subscription at any time without any additional fees.",
+    pricingTitle: "Pricing and Features",
     free: "Free",
     individual: "Individual",
     company: "Company",
     month: "/month",
     choosePlan: "Choose Plan",
+    freeFeatures: [
+      "Basic expense tracking",
+      "Budget overview",
+      "Spending alerts",
+      "Connect 1 bank account",
+      "Monthly reports"
+    ],
+    individualFeatures: [
+      "All Free plan features",
+      "Connect multiple accounts",
+      "Automatic transaction categorization",
+      "Custom financial goals",
+      "Investment analysis"
+    ],
+    companyFeatures: [
+      "All Individual plan features",
+      "Team expense management",
+      "Advanced financial reporting",
+      "Accounting system integration",
+      "24/7 priority support"
+    ],
     privacyPolicy: "Privacy Policy",
     termsOfService: "Terms of Service",
     aboutUs: "About Us",
-    copyright: "© 2023 SageFI. All rights reserved.",
+    copyright: "© 2024 All rights reserved.",
   },
   es: {
     home: "Inicio",
@@ -78,122 +147,68 @@ const translations = {
     smartBudget: "Presupuesto Inteligente",
     smartBudgetDesc: "Deja que la IA te ayude a crear y mantener un presupuesto óptimo.",
     purchaseOptimization: "Optimización de Compras",
-    purchaseOptimizationDesc: "Obtén información sobre tus hábitos de consumo y tendencias de compra.",
+    purchaseOptimizationDesc: "Obtén información sobre tus hábitos de gasto y tendencias de compra.",
     faqTitle: "Preguntas Frecuentes",
+    faq1: "¿Cómo protegemos tus datos financieros?",
+    faqAnswer1: "Utilizamos encriptación de nivel bancario y seguimos las mejores prácticas de seguridad para proteger tus datos.",
+    faq2: "¿Puedo conectar múltiples cuentas bancarias?",
+    faqAnswer2: "Sí, puedes conectar y gestionar varias cuentas bancarias en una sola interfaz.",
+    faq3: "¿Cómo mejora la IA mi gestión financiera?",
+    faqAnswer3: "Nuestra IA analiza tus patrones de gasto y proporciona recomendaciones personalizadas para mejorar tu salud financiera.",
+    faq4: "¿Ofrecen planificación para la jubilación?",
+    faqAnswer4: "Sí, nuestros planes incluyen herramientas de planificación para la jubilación con proyecciones y recomendaciones personalizadas.",
+    faq5: "¿Puedo cancelar mi suscripción en cualquier momento?",
+    faqAnswer5: "Absolutamente. Puedes cancelar tu suscripción en cualquier momento sin cargos adicionales.",
     pricingTitle: "Precios y Características",
     free: "Gratis",
     individual: "Individual",
     company: "Empresa",
     month: "/mes",
     choosePlan: "Elegir Plan",
+    freeFeatures: [
+      "Seguimiento básico de gastos",
+      "Resumen de presupuesto",
+      "Alertas de gastos",
+      "Conexión con 1 cuenta bancaria",
+      "Informes mensuales"
+    ],
+    individualFeatures: [
+      "Todas las características del plan Gratis",
+      "Conexión con múltiples cuentas",
+      "Categorización automática de transacciones",
+      "Metas financieras personalizadas",
+      "Análisis de inversiones"
+    ],
+    companyFeatures: [
+      "Todas las características del plan Individual",
+      "Gestión de gastos de equipo",
+      "Informes financieros avanzados",
+      "Integración con sistemas de contabilidad",
+      "Soporte prioritario 24/7"
+    ],
     privacyPolicy: "Política de Privacidad",
     termsOfService: "Términos de Servicio",
-    aboutUs: "Quiénes Somos",
-    copyright: "© 2023 SageFI. Todos los derechos reservados.",
+    aboutUs: "Sobre Nosotros",
+    copyright: "© 2024 Todos los derechos reservados.",
   }
-}
+};
 
 export default function HomePage() {
-  const [lang, setLang] = useState('pt')
-  const t = translations[lang]
+  const [lang, setLang] = useState('pt');
+  const t = translations[lang];
+  const navigate = useNavigate();
 
-  const faqData = [
-    {
-      question: {
-        pt: "Quão seguros estão meus dados financeiros?",
-        en: "How secure is my financial data?",
-        es: "¿Qué tan seguros están mis datos financieros?"
-      },
-      answer: {
-        pt: "Usamos criptografia de nível bancário para garantir que seus dados estejam sempre protegidos.",
-        en: "We use bank-level encryption to ensure your data is always protected.",
-        es: "Utilizamos encriptación de nivel bancario para garantizar que sus datos estén siempre protegidos."
-      }
-    },
-    {
-      question: {
-        pt: "Posso conectar várias contas?",
-        en: "Can I connect multiple accounts?",
-        es: "¿Puedo conectar varias cuentas?"
-      },
-      answer: {
-        pt: "Sim, você pode conectar e gerenciar várias contas financeiras em um só lugar.",
-        en: "Yes, you can connect and manage multiple financial accounts in one place.",
-        es: "Sí, puede conectar y gestionar varias cuentas financieras en un solo lugar."
-      }
-    },
-    {
-      question: {
-        pt: "Existe um aplicativo móvel disponível?",
-        en: "Is there a mobile app available?",
-        es: "¿Hay una aplicación móvil disponible?"
-      },
-      answer: {
-        pt: "Sim, oferecemos aplicativos móveis para plataformas iOS e Android.",
-        en: "Yes, we offer mobile apps for both iOS and Android platforms.",
-        es: "Sí, ofrecemos aplicaciones móviles para plataformas iOS y Android."
-      }
-    },
-    {
-      question: {
-        pt: "Com que frequência meus dados são atualizados?",
-        en: "How often is my data updated?",
-        es: "¿Con qué frecuencia se actualizan mis datos?"
-      },
-      answer: {
-        pt: "Seus dados são atualizados em tempo real para fornecer o panorama financeiro mais preciso.",
-        en: "Your data is updated in real-time to provide the most accurate financial picture.",
-        es: "Sus datos se actualizan en tiempo real para proporcionar la imagen financiera más precisa."
-      }
-    },
-    {
-      question: {
-        pt: "Posso exportar meus relatórios financeiros?",
-        en: "Can I export my financial reports?",
-        es: "¿Puedo exportar mis informes financieros?"
-      },
-      answer: {
-        pt: "Sim, você pode exportar seus relatórios financeiros em vários formatos, incluindo PDF e CSV.",
-        en: "Yes, you can export your financial reports in various formats including PDF and CSV.",
-        es: "Sí, puede exportar sus informes financieros en varios formatos, incluyendo PDF y CSV."
-      }
-    }
-  ]
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
 
-  const pricingData = [
-    {
-      plan: t.free,
-      price: "R$ 0",
-      features: [
-        t.smartAnalytics,
-        t.smartBudget,
-      ]
-    },
-    {
-      plan: t.individual,
-      price: "R$ 15",
-      features: [
-        t.smartAnalytics,
-        t.smartBudget,
-        t.purchaseOptimization,
-      ]
-    },
-    {
-      plan: t.company,
-      price: "R$ 80",
-      features: [
-        t.smartAnalytics,
-        t.smartBudget,
-        t.purchaseOptimization,
-        "API Access",
-        "Dedicated Support",
-      ]
-    }
-  ]
+  const getCurrencySymbol = () => {
+    return lang === 'pt' ? 'R$' : '$';
+  };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <header className="bg-white shadow-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      <header className="bg-white shadow-sm">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
           <div className="flex items-center">
             <span className="text-2xl font-bold text-blue-600">SageFI</span>
@@ -213,8 +228,8 @@ export default function HomePage() {
               <option value="en">EN</option>
               <option value="es">ES</option>
             </select>
-            <Button variant="ghost" as={Link} to="/Login">{t.login}</Button>
-            <Button as={Link} to="/cadastrar">{t.signUp}</Button>
+            <Button variant="ghost" onClick={handleLoginClick}>{t.login}</Button>
+            <Button onClick={handleLoginClick}>{t.signUp}</Button>
           </div>
         </nav>
       </header>
@@ -223,7 +238,9 @@ export default function HomePage() {
         <section className="mb-16">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">{t.heroTitle}</h1>
           <p className="text-xl text-gray-600 mb-8">{t.heroDescription}</p>
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">{t.getStarted}</Button>
+          <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleLoginClick}>
+            {t.getStarted}
+          </Button>
         </section>
 
         <section id="features" className="mb-16">
@@ -232,21 +249,30 @@ export default function HomePage() {
             <h2 className="text-3xl font-bold text-gray-900">{t.manageFinances}</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <BarChart className="w-12 h-12 text-blue-600 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">{t.smartAnalytics}</h3>
-              <p className="text-gray-600">{t.smartAnalyticsDesc}</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <Wallet className="w-12 h-12 text-blue-600 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">{t.smartBudget}</h3>
-              <p className="text-gray-600">{t.smartBudgetDesc}</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <ShoppingCart className="w-12 h-12 text-blue-600 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">{t.purchaseOptimization}</h3>
-              <p className="text-gray-600">{t.purchaseOptimizationDesc}</p>
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>{t.smartAnalytics}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{t.smartAnalyticsDesc}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>{t.smartBudget}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{t.smartBudgetDesc}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>{t.purchaseOptimization}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{t.purchaseOptimizationDesc}</p>
+              </CardContent>
+            </Card>
           </div>
         </section>
 
@@ -255,14 +281,28 @@ export default function HomePage() {
             <HelpCircle className="w-8 h-8 text-blue-600 mr-4" />
             <h2 className="text-3xl font-bold text-gray-900">{t.faqTitle}</h2>
           </div>
-          <ul className="space-y-4">
-            {faqData.map((faq, index) => (
-              <li key={index} className="bg-white p-4 rounded-lg shadow-md">
-                <h3 className="text-lg font-semibold mb-2">{faq.question[lang]}</h3>
-                <p className="text-gray-600">{faq.answer[lang]}</p>
-              </li>
-            ))}
-          </ul>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>{t.faq1}</AccordionTrigger>
+              <AccordionContent>{t.faqAnswer1}</AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-2">
+              <AccordionTrigger>{t.faq2}</AccordionTrigger>
+              <AccordionContent>{t.faqAnswer2}</AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-3">
+              <AccordionTrigger>{t.faq3}</AccordionTrigger>
+              <AccordionContent>{t.faqAnswer3}</AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-4">
+              <AccordionTrigger>{t.faq4}</AccordionTrigger>
+              <AccordionContent>{t.faqAnswer4}</AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="item-5">
+              <AccordionTrigger>{t.faq5}</AccordionTrigger>
+              <AccordionContent>{t.faqAnswer5}</AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </section>
 
         <section id="pricing" className="mb-16">
@@ -270,147 +310,83 @@ export default function HomePage() {
             <DollarSign className="w-8 h-8 text-blue-600 mr-4" />
             <h2 className="text-3xl font-bold text-gray-900">{t.pricingTitle}</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {pricingData.map((plan, index) => (
-              <div key={index} className="bg-white p-6 rounded-lg shadow-md flex flex-col">
-                <h3 className="text-xl font-semibold mb-2">{plan.plan}</h3>
-                <p className="text-3xl font-bold mb-4">{plan.price} <span className="text-xl font-normal text-gray-600">{t.month}</span></p>
-                <ul className="mb-6 flex-grow">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-center mb-2">
-                      <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+          <div className="grid md:grid-cols-3 gap-8 mt-8">
+            <Card className="flex flex-col">
+              <CardHeader>
+                <CardTitle>{t.free}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <p className="text-4xl font-bold">{getCurrencySymbol()}0</p>
+                <p>{t.month}</p>
+                <ul className="mt-4 space-y-2">
+                  {t.freeFeatures.map((feature, index) => (
+                    <li key={index} className="flex items-center">
+                      <Check className="h-5 w-5 text-green-500 mr-2" />
                       {feature}
                     </li>
                   ))}
                 </ul>
-                <Button className="w-full mt-auto">{t.choosePlan}</Button>
+              </CardContent>
+              <div className="p-6 mt-auto">
+                <Button className="w-full" onClick={handleLoginClick}>{t.choosePlan}</Button>
               </div>
-            ))}
+            </Card>
+            <Card className="flex flex-col">
+              <CardHeader>
+                <CardTitle>{t.individual}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <p className="text-4xl font-bold">{getCurrencySymbol()}9,99</p>
+                <p>{t.month}</p>
+                <ul className="mt-4 space-y-2">
+                  {t.individualFeatures.map((feature, index) => (
+                    <li key={index} className="flex items-center">
+                      <Check className="h-5 w-5 text-green-500 mr-2" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <div className="p-6 mt-auto">
+                <Button className="w-full" onClick={handleLoginClick}>{t.choosePlan}</Button>
+              </div>
+            </Card>
+            <Card className="flex flex-col">
+              <CardHeader>
+                <CardTitle>{t.company}</CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <p className="text-4xl font-bold">{getCurrencySymbol()}49,99</p>
+                <p>{t.month}</p>
+                <ul className="mt-4 space-y-2">
+                  {t.companyFeatures.map((feature, index) => (
+                    <li key={index} className="flex items-center">
+                      <Check className="h-5 w-5 text-green-500 mr-2" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+              <div className="p-6 mt-auto">
+                <Button className="w-full" onClick={handleLoginClick}>{t.choosePlan}</Button>
+              </div>
+            </Card>
           </div>
         </section>
       </main>
 
-      <footer className="bg-gray-800 text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <span className="text-lg font-semibold mb-4 md:mb-0">SageFI</span>
-            <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-4">
-              <a href="#" className="hover:text-blue-300">{t.privacyPolicy}</a>
-              <a href="#" className="hover:text-blue-300">{t.termsOfService}</a>
-              <a href="#" className="hover:text-blue-300">{t.aboutUs}</a>
+      <footer className="bg-gray-100 mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col md:flex-row justify-center items-center">
+            <div className="flex space-x-4">
+              <a href="#" className="text-gray-600 hover:text-blue-600">{t.privacyPolicy}</a>
+              <a href="#" className="text-gray-600 hover:text-blue-600">{t.termsOfService}</a>
+              <a href="#" className="text-gray-600 hover:text-blue-600">{t.aboutUs}</a>
             </div>
           </div>
-          <p className="mt-4 text-sm text-gray-400 text-center md:text-left">{t.copyright}</p>
+          <p className="mt-4 text-sm text-gray-500 text-center">{t.copyright}</p>
         </div>
       </footer>
     </div>
-  )
+  );
 }
-
-
-// import { Link } from 'react-router-dom'; // Importe o Link
-// import { Button } from "C://SaudeFinanceira/TestAuth/src/components/ui/button"
-// import { Card, CardContent, CardHeader, CardTitle } from "C://SaudeFinanceira/TestAuth/src/components/ui/cards"
-// import { BarChart, PieChart, Users } from "lucide-react"
-
-// export default function HomePage() {
-//   return (
-//     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-//       <header className="bg-white shadow-sm">
-//         <nav className="container mx-auto px-4 py-4 flex justify-between items-center">
-//           <div className="text-2xl font-bold text-blue-600">FinControl</div>
-//           <div className="space-x-4">
-//             <a href="#" className="text-gray-600 hover:text-blue-600">Saúde Financeira</a>
-//             <a href="#" className="text-gray-600 hover:text-blue-600">Perguntas Frequentes</a>
-//             <a href="#" className="text-gray-600 hover:text-blue-600">Preços & Funcionalidades</a>
-//             <a href="#" className="text-gray-600 hover:text-blue-600">Quem Somos</a>
-//             <a href="#" className="text-gray-600 hover:text-blue-600">Seja Parceiro</a>
-//           </div>
-//           <Button variant="outline" as={Link} to="/Login"> 
-//   Login 
-// </Button>
-//         </nav>
-//       </header>
-
-//       <main className="container mx-auto px-4 py-8">
-//         <section className="mb-16 text-center">
-//           <h1 className="text-4xl font-bold mb-4 text-gray-800">Como anda a sua Saúde Financeira?</h1>
-//           <p className="text-xl mb-8 text-gray-600">Descubra como melhorar sua situação financeira com nossa análise personalizada.</p>
-//           <Button size="lg">Comece Hoje | Teste 7 dias Grátis</Button>
-//         </section>
-
-//         <section className="mb-16">
-//           <h2 className="text-3xl font-bold mb-8 text-center text-gray-800">Gerencie sua saúde financeira de maneira automatizada com IA</h2>
-//           <div className="grid md:grid-cols-3 gap-8">
-//             <Card>
-//               <CardHeader>
-//                 <CardTitle className="flex items-center">
-//                   <BarChart className="w-6 h-6 mr-2 text-blue-600" />
-//                   Análise de Gastos
-//                 </CardTitle>
-//               </CardHeader>
-//               <CardContent>
-//                 <p>Visualize seus gastos de forma clara e intuitiva, identificando áreas de melhoria.</p>
-//               </CardContent>
-//             </Card>
-//             <Card>
-//               <CardHeader>
-//                 <CardTitle className="flex items-center">
-//                   <PieChart className="w-6 h-6 mr-2 text-blue-600" />
-//                   Orçamento Inteligente
-//                 </CardTitle>
-//               </CardHeader>
-//               <CardContent>
-//                 <p>Crie orçamentos personalizados com base em seus hábitos de gastos e metas financeiras.</p>
-//               </CardContent>
-//             </Card>
-//             <Card>
-//               <CardHeader>
-//                 <CardTitle className="flex items-center">
-//                   <Users className="w-6 h-6 mr-2 text-blue-600" />
-//                   Consultoria Especializada
-//                 </CardTitle>
-//               </CardHeader>
-//               <CardContent>
-//                 <p>Receba orientações de especialistas para melhorar sua saúde financeira.</p>
-//               </CardContent>
-//             </Card>
-//           </div>
-//         </section>
-
-//         <section className="mb-16 text-center">
-//           <h2 className="text-3xl font-bold mb-4 text-gray-800">Perguntas Frequentes</h2>
-//           <p className="text-xl mb-8 text-gray-600">Encontre respostas para as dúvidas mais comuns sobre nossos serviços.</p>
-//           <Button variant="outline" size="lg">Ver Todas as Perguntas</Button>
-//         </section>
-
-//         <section className="mb-16 text-center">
-//           <h2 className="text-3xl font-bold mb-4 text-gray-800">Preços & Funcionalidades</h2>
-//           <p className="text-xl mb-8 text-gray-600">Escolha o plano que melhor se adapta às suas necessidades financeiras.</p>
-//           <Button variant="outline" size="lg">Ver Planos</Button>
-//         </section>
-
-//         <section className="text-center">
-//           <h2 className="text-3xl font-bold mb-4 text-gray-800">Quem Somos</h2>
-//           <p className="text-xl mb-8 text-gray-600">Conheça nossa equipe e missão para ajudar você a alcançar a liberdade financeira.</p>
-//           <Button variant="outline" size="lg">Saiba Mais</Button>
-//         </section>
-//       </main>
-
-//       <footer className="bg-gray-100 mt-16">
-//         <div className="container mx-auto px-4 py-8">
-//           <div className="flex justify-between items-center">
-//             <div className="text-2xl font-bold text-blue-600">FinControl</div>
-//             <div className="space-x-4">
-//               <a href="#" className="text-gray-600 hover:text-blue-600">Termos de Uso</a>
-//               <a href="#" className="text-gray-600 hover:text-blue-600">Política de Privacidade</a>
-//             </div>
-//           </div>
-//           <div className="mt-4 text-center text-gray-500">
-//             © 2023 FinControl. Todos os direitos reservados.
-//           </div>
-//         </div>
-//       </footer>
-//     </div>
-//   )
-// }

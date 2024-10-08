@@ -7,6 +7,8 @@ type User = {
   id: string;
 };
 
+// conexão supabase
+
 const supabaseUrl = 'https://xjrtfyyqxyjcffgdudnm.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqcnRmeXlxeHlqY2ZmZ2R1ZG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjc3MzQ3MzAsImV4cCI6MjA0MzMxMDczMH0.3fgnS2EX2dEunQ7y_lXYd869UtdId4oJktXTgQgf4ko'; 
 const supabase = createClient(supabaseUrl, supabaseKey);

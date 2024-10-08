@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+      // ... outras opções do compilador TypeScript ...
+  
+      "baseUrl": ".",  // Define a base para resolver módulos
+      "paths": {
+        "@/*": ["./src/*"]  // Configura o atalho '@' para a pasta 'src'
+      }
+    }
+  }
