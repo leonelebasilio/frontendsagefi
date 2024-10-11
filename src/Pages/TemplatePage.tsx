@@ -9,6 +9,8 @@ import BodyImportData from '../components/Pages/BodyImportData'
 import BodyDashboard from '../components/Pages/BodyDashboard'
 import BuscarPage from '../components/Pages/BodyBuscarAI'
 import BodyCapturaFoto from '@/components/Pages/BodyCapturaFoto'
+import TesteSupabase from '@/components/Pages/TesteSupabase'
+import BodyTags from '@/components/Pages/BodyTags'
 
 
 // Define props interface for TemplatePage component
@@ -50,6 +52,15 @@ export default function TemplatePage({ children }: TemplatePageProps) {
         <BodyCapturaFoto />
       </Bodysys>
 
+      <Bodysys>
+        {children}
+        <TesteSupabase />
+      </Bodysys>
+
+      <Bodysys>
+        {children}
+        <BodyTags />
+      </Bodysys>
 
 
       {/* Footer */}
