@@ -10,6 +10,8 @@ import BodyDashboard from '../components/Pages/BodyDashboard'
 import BuscarPage from '../components/Pages/BodyBuscarAI'
 import BodyCapturaFoto from '@/components/Pages/BodyCapturaFoto'
 import TesteSupabase from '@/components/Pages/TesteSupabase'
+import BodyConta from '@/components/Pages/BodyConta'
+import BodyCategoria from '@/components/Pages/BodyCategoria'
 
 
 // Define props interface for Settings component
@@ -28,10 +30,13 @@ export default function Settings({ children }: SettingsProps) {
       {/* Main content */}
       <Bodysys>
         {children}
-        <TesteSupabase />
+        <BodyCategoria />
       </Bodysys>
 
-     
+      <Bodysys>
+        {children}
+        <BodyConta />
+      </Bodysys>
 
 
 
