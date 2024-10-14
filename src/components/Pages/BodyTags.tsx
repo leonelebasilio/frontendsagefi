@@ -1,14 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '@/components/AuthProvider'
 import { createClient } from '@supabase/supabase-js'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useToast } from "@/hooks/use-toast"
+import { Toaster } from "@/components/ui/toaster"
+import { Pencil, Trash2, Save, Search, ChevronDown, ChevronUp } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { toast } from "@/hooks/use-toast"
-import { Tag, Star, Heart, Circle, Square, Triangle, Home, User, Settings, Mail, Phone, Calendar, Book, Music, Video, Camera, Image, FileText, Folder, Globe } from 'lucide-react'
+import { Label } from "@/components/ui/label"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 // Inicializa o cliente Supabase
 const supabaseUrl = 'https://xjrtfyyqxyjcffgdudnm.supabase.co'
@@ -21,45 +24,30 @@ interface Tag {
   nome: string
   icone: string
   cor: string
+  created_at: string
+  updated_at: string
 }
 
 const cores = [
   '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF',
   '#800000', '#008000', '#000080', '#808000', '#800080', '#008080',
-  '#FFA500', '#FFC0CB', '#800000', '#FF1493', '#FF4500', '#DA70D6',
-  '#7B68EE', '#00FA9A'
-]
-
-const icones = [
-  { nome: 'tag', componente: Tag },
-  { nome: 'star', componente: Star },
-  { nome: 'heart', componente: Heart },
-  { nome: 'circle', componente: Circle },
-  { nome: 'square', componente: Square },
-  { nome: 'triangle', componente: Triangle },
-  { nome: 'home', componente: Home },
-  { nome: 'user', componente: User },
-  { nome: 'settings', componente: Settings },
-  { nome: 'mail', componente: Mail },
-  { nome: 'phone', componente: Phone },
-  { nome: 'calendar', componente: Calendar },
-  { nome: 'book', componente: Book },
-  { nome: 'music', componente: Music },
-  { nome: 'video', componente: Video },
-  { nome: 'camera', componente: Camera },
-  { nome: 'image', componente: Image },
-  { nome: 'file', componente: FileText },
-  { nome: 'folder', componente: Folder },
-  { nome: 'globe', componente: Globe }
+  '#FFA500', '#FFC0CB', '#800000', '#008000', '#000080', '#808000',
+  '#800080', '#008080'
 ]
 
 export default function BodyTags() {
-  const [nome, setNome] = useState('')
-  const [icone, setIcone] = useState('')
-  const [cor, setCor] = useState('')
+  const [novaTag, setNovaTag] = useState<Omit<Tag, 'id' | 'user_id' | 'created_at' | 'updated_at'>>({
+    nome: '',
+    icone: '',
+    cor: cores[0]
+  })
   const [tags, setTags] = useState<Tag[]>([])
   const [editando, setEditando] = useState<number | null>(null)
+  const [mostrarBusca, setMostrarBusca] = useState(false)
+  const [termoBusca, setTermoBusca] = useState('')
   const { user } = useAuth()
+  const { toast } = useToast()
+  const searchInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (user) {
@@ -67,14 +55,20 @@ export default function BodyTags() {
     }
   }, [user])
 
+  useEffect(() => {
+    if (mostrarBusca && searchInputRef.current) {
+      searchInputRef.current.focus()
+    }
+  }, [mostrarBusca])
+
   // Função para carregar as tags do usuário
   const carregarTags = async () => {
     try {
       const { data, error } = await supabase
-        .from('tbTags')
+        .from('tbtag')
         .select('*')
         .eq('user_id', user?.id)
-        .order('id', { ascending: true })
+        .order('created_at', { ascending: false })
 
       if (error) throw error
       setTags(data || [])
@@ -88,43 +82,56 @@ export default function BodyTags() {
     }
   }
 
-  // Função para adicionar ou atualizar uma tag
-  const salvarTag = async (e: React.FormEvent) => {
+  // Função para adicionar uma nova tag
+  const adicionarTag = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      if (editando) {
-        const { error } = await supabase
-          .from('tbTags')
-          .update({ nome, icone, cor })
-          .eq('id', editando)
-          .eq('user_id', user?.id)
+      const { error } = await supabase
+        .from('tbtag')
+        .insert({ ...novaTag, user_id: user?.id })
 
-        if (error) throw error
-        toast({
-          title: "Sucesso",
-          description: "Tag atualizada com sucesso!",
-        })
-      } else {
-        const { error } = await supabase
-          .from('tbTags')
-          .insert({ nome, icone, cor, user_id: user?.id })
+      if (error) throw error
+      toast({
+        title: "Sucesso",
+        description: "Nova tag adicionada com sucesso!",
+      })
+      setNovaTag({
+        nome: '',
+        icone: '',
+        cor: cores[0]
+      })
+      carregarTags()
+    } catch (error) {
+      console.error('Erro ao adicionar tag:', error)
+      toast({
+        title: "Erro",
+        description: "Não foi possível adicionar a tag. Por favor, tente novamente.",
+        variant: "destructive",
+      })
+    }
+  }
 
-        if (error) throw error
-        toast({
-          title: "Sucesso",
-          description: "Nova tag adicionada com sucesso!",
-        })
-      }
-      setNome('')
-      setIcone('')
-      setCor('')
+  // Função para atualizar uma tag
+  const atualizarTag = async (id: number, tagAtualizada: Partial<Tag>) => {
+    try {
+      const { error } = await supabase
+        .from('tbtag')
+        .update(tagAtualizada)
+        .eq('id', id)
+        .eq('user_id', user?.id)
+
+      if (error) throw error
+      toast({
+        title: "Sucesso",
+        description: "Tag atualizada com sucesso!",
+      })
       setEditando(null)
       carregarTags()
     } catch (error) {
-      console.error('Erro ao salvar tag:', error)
+      console.error('Erro ao atualizar tag:', error)
       toast({
         title: "Erro",
-        description: "Não foi possível salvar a tag. Por favor, tente novamente.",
+        description: "Não foi possível atualizar a tag. Por favor, tente novamente.",
         variant: "destructive",
       })
     }
@@ -134,7 +141,7 @@ export default function BodyTags() {
   const excluirTag = async (id: number) => {
     try {
       const { error } = await supabase
-        .from('tbTags')
+        .from('tbtag')
         .delete()
         .eq('id', id)
         .eq('user_id', user?.id)
@@ -155,93 +162,198 @@ export default function BodyTags() {
     }
   }
 
-  const IconeComponent = ({ nome, cor }: { nome: string, cor: string }) => {
-    const icone = icones.find(i => i.nome === nome)
-    if (icone) {
-      const IconComponent = icone.componente
-      return <IconComponent className="h-4 w-4" style={{ color: cor }} />
-    }
-    return null
-  }
+  // Função para filtrar as tags
+  const tagsFiltradas = tags.filter(tag =>
+    tag.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
+    tag.icone.toLowerCase().includes(termoBusca.toLowerCase())
+  )
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>Gerenciar Tags</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={salvarTag} className="space-y-4">
-          <Input
-            type="text"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            placeholder="Nome da tag"
-            required
-          />
-          <Select value={icone} onValueChange={setIcone}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione um ícone" />
-            </SelectTrigger>
-            <SelectContent>
-              {icones.map((ic) => (
-                <SelectItem key={ic.nome} value={ic.nome}>
-                  <div className="flex items-center">
-                    <ic.componente className="mr-2 h-4 w-4" />
-                    {ic.nome}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={cor} onValueChange={setCor}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione uma cor" />
-            </SelectTrigger>
-            <SelectContent>
-              {cores.map((c) => (
-                <SelectItem key={c} value={c}>
-                  <div className="flex items-center">
-                    <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: c }}></div>
-                    {c}
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button type="submit">
-            {editando ? 'Atualizar' : 'Adicionar'} Tag
-          </Button>
-        </form>
+    <>
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Gerenciar Tags</CardTitle>
+          <div className="flex items-center">
+            {mostrarBusca && (
+              <Input
+                ref={searchInputRef}
+                type="text"
+                value={termoBusca}
+                onChange={(e) => setTermoBusca(e.target.value)}
+                placeholder="Buscar tags..."
+                className="mr-2 w-64"
+              />
+            )}
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => setMostrarBusca(!mostrarBusca)}
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={adicionarTag} className="space-y-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="nome" className="text-sm font-medium">Nome da Tag</Label>
+                <Input
+                  id="nome"
+                  type="text"
+                  value={novaTag.nome}
+                  onChange={(e) => setNovaTag({ ...novaTag, nome: e.target.value })}
+                  placeholder="Nome da nova tag"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="icone" className="text-sm font-medium">Ícone da Tag</Label>
+                <Input
+                  id="icone"
+                  type="text"
+                  value={novaTag.icone}
+                  onChange={(e) => setNovaTag({ ...novaTag, icone: e.target.value })}
+                  placeholder="Sugestão de ícone"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cor" className="text-sm font-medium">Cor da Tag</Label>
+                <Select
+                  value={novaTag.cor}
+                  onValueChange={(value) => setNovaTag({ ...novaTag, cor: value })}
+                >
+                  <SelectTrigger id="cor">
+                    <SelectValue placeholder="Selecione a cor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cores.map((cor, index) => (
+                      <SelectItem key={index} value={cor}>
+                        <div className="flex items-center">
+                          <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: cor }}></div>
+                          {cor}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <Button type="submit">Salvar</Button>
+          </form>
 
-        <div className="mt-8 space-y-4">
-          {tags.map((tag) => (
-            <Card key={tag.id}>
-              <CardContent className="flex justify-between items-center p-4">
-                <div className="flex items-center">
-                  <IconeComponent nome={tag.icone} cor={tag.cor} />
-                  <span className="ml-2">{tag.nome}</span>
-                </div>
-                <div>
-                  <Button
-                    onClick={() => {
-                      setEditando(tag.id)
-                      setNome(tag.nome)
-                      setIcone(tag.icone)
-                      setCor(tag.cor)
-                    }}
-                    className="mr-2"
-                  >
-                    Editar
-                  </Button>
-                  <Button onClick={() => excluirTag(tag.id)} variant="destructive">
-                    Excluir
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nome da Tag</TableHead>
+                <TableHead>Ícone</TableHead>
+                <TableHead>Cor</TableHead>
+                <TableHead>Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {tagsFiltradas.map((tag) => (
+                <>
+                  <TableRow key={tag.id}>
+                    <TableCell>{tag.nome}</TableCell>
+                    <TableCell>{tag.icone}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: tag.cor }}></div>
+                        {tag.cor}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex space-x-2">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditando(editando === tag.id ? null : tag.id)}
+                        >
+                          {editando === tag.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => excluirTag(tag.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                  {editando === tag.id && (
+                    <TableRow>
+                      <TableCell colSpan={4}>
+                        <form onSubmit={(e) => {
+                          e.preventDefault()
+                          atualizarTag(tag.id, tag)
+                        }} className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor={`nome-${tag.id}`} className="text-sm font-medium">Nome da Tag</Label>
+                              <Input
+                                id={`nome-${tag.id}`}
+                                type="text"
+                                value={tag.nome}
+                                onChange={(e) => setTags(tags.map(t => t.id === tag.id ? { ...t, nome: e.target.value } : t))}
+                                placeholder="Nome da tag"
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor={`icone-${tag.id}`} className="text-sm font-medium">Ícone da Tag</Label>
+                              <Input
+                                id={`icone-${tag.id}`}
+                                type="text"
+                                value={tag.icone}
+                                onChange={(e) => setTags(tags.map(t => t.id === tag.id ? { ...t, icone: e.target.value } : t))}
+                                placeholder="Sugestão de ícone"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor={`cor-${tag.id}`} className="text-sm font-medium">Cor da Tag</Label>
+                              <Select
+                                value={tag.cor}
+                                onValueChange={(value) => setTags(tags.map(t => t.id === tag.id ? { ...t, cor: value } : t))}
+                              >
+                                <SelectTrigger id={`cor-${tag.id}`}>
+                                  <SelectValue placeholder="Selecione a cor" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {cores.map((cor, index) => (
+                                    <SelectItem key={index} value={cor}>
+                                      <div className="flex items-center">
+                                        <div className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: cor }}></div>
+                                        {cor}
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div className="flex justify-end space-x-2">
+                            <Button type="submit" size="sm">
+                              <Save className="h-4 w-4 mr-2" />
+                              Salvar
+                            </Button>
+                            <Button type="button" size="sm" variant="outline" onClick={() => setEditando(null)}>
+                              Cancelar
+                            </Button>
+                          </div>
+                        </form>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+      <Toaster />
+    
+    </>
   )
 }

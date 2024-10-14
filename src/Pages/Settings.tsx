@@ -4,14 +4,10 @@ import React from 'react'
 import Headersys from '@/components/uisys/Headersys'
 import Footersys from '@/components/uisys/Footersys'
 import Bodysys from '@/components/uisys/Bodysys'
-import BodysysTransactionsPage from '../components/Pages/BodysysTransactionsPage'
-import BodyImportData from '../components/Pages/BodyImportData'
-import BodyDashboard from '../components/Pages/BodyDashboard'
-import BuscarPage from '../components/Pages/BodyBuscarAI'
-import BodyCapturaFoto from '@/components/Pages/BodyCapturaFoto'
-import TesteSupabase from '@/components/Pages/TesteSupabase'
 import BodyConta from '@/components/Pages/BodyConta'
 import BodyCategoria from '@/components/Pages/BodyCategoria'
+import BodyTags from '@/components/Pages/BodyTags'
+import BodyCartao from '@/components/Pages/BodyCartao'
 
 
 // Define props interface for Settings component
@@ -38,6 +34,15 @@ export default function Settings({ children }: SettingsProps) {
         <BodyConta />
       </Bodysys>
 
+      <Bodysys>
+        {children}
+        <BodyTags />
+      </Bodysys>
+
+      <Bodysys>
+        {children}
+        <BodyCartao />
+      </Bodysys>
 
 
       {/* Footer */}
